@@ -132,7 +132,7 @@ export const dictionaries = {
         applyCoupon: "Validar",
         total: "Total a cubrir",
         checkoutBtn: "Proceder al pago",
-        secure: "Transacción blindada · Visa · Mastercard · Amex · SPEI",
+        secure: "Transacción blindada · Visa · Mastercard ",
       },
       toastCleared: "Se ha vaciado la cesta",
       toastCouponOk: "Cupón canjeado exitosamente",
@@ -150,7 +150,6 @@ export const dictionaries = {
       blocks: {
         contact: "Información personal",
         address: "Ubicación",
-        invoice: "Datos de facturación",
         payment: "Vía de pago",
         notes: "Anotaciones adicionales",
       },
@@ -178,14 +177,7 @@ export const dictionaries = {
       },
       paymentMethods: [
         { id: "tarjeta", name: "Tarjeta bancaria", detail: "Visa · Mastercard · American Express" },
-        { id: "spei", name: "Transferencia electrónica (SPEI)", detail: "Obtendrás la CLABE al avalar el pago" },
-        { id: "oxxo", name: "Depósito en efectivo", detail: "Código válido durante 72 horas" },
       ],
-      paymentNotes: {
-        spei: "Al avalar tu orden, te enviaremos por email la CLABE y tu referencia. El caso se activará en cuanto confirmemos los fondos.",
-        oxxo: "Al avalar tu orden, emitiremos un código para pago en ventanilla válido por 72 horas. El caso se activará tras confirmar el depósito.",
-        demo: "Entorno de pruebas — no se efectúan cobros reales",
-      },
       terms: {
         agree: "He leído y estoy de acuerdo con los ",
         termsLink: "términos de servicio",
@@ -368,7 +360,7 @@ export const dictionaries = {
       steps: [
         { index: "01", title: "Ingresa el folio", body: "Se ubica en la parte superior del documento oficial que te enviamos." },
         { index: "02", title: "Especifica el monto", body: "Debe ser idéntico al subtotal aprobado. El IVA se integrará automáticamente en la pasarela." },
-        { index: "03", title: "Autoriza la transacción", body: "Selecciona tarjeta, SPEI o efectivo. Obtendrás tu comprobante y CFDI 4.0 el mismo día." },
+        { index: "03", title: "Autoriza la transacción", body: "Liquida de forma segura con tu tarjeta. Obtendrás tu comprobante y CFDI 4.0 el mismo día." } // <-- Actualizado
       ],
       document: {
         kicker: "Documento oficial",
@@ -542,7 +534,7 @@ export const dictionaries = {
         applyCoupon: "Validate",
         total: "Total to cover",
         checkoutBtn: "Proceed to checkout",
-        secure: "Shielded transaction · Visa · Mastercard · Amex · SPEI",
+        secure: "Shielded transaction · Visa · Mastercard",
       },
       toastCleared: "Basket has been emptied",
       toastCouponOk: "Coupon successfully redeemed",
@@ -560,7 +552,6 @@ export const dictionaries = {
       blocks: {
         contact: "Personal Information",
         address: "Location",
-        invoice: "Billing Data",
         payment: "Payment Method",
         notes: "Additional Annotations",
       },
@@ -587,15 +578,8 @@ export const dictionaries = {
         cardholder: "Account Holder",
       },
       paymentMethods: [
-        { id: "tarjeta", name: "Bank Card", detail: "Visa · Mastercard · American Express" },
-        { id: "spei", name: "Wire Transfer (SPEI)", detail: "You will get the CLABE upon approving the payment" },
-        { id: "oxxo", name: "Cash Deposit", detail: "Code valid for 72 hours" },
+        { id: "tarjeta", name: "Bank Card", detail: "Visa · Mastercard " },
       ],
-      paymentNotes: {
-        spei: "Upon approving your order, we will email you the CLABE and reference. The case activates once we confirm the funds.",
-        oxxo: "Upon approving your order, we will issue an over-the-counter payment code valid for 72 hours. The case activates after the deposit is confirmed.",
-        demo: "Testing environment — no real charges are made",
-      },
       terms: {
         agree: "I have read and agree to the ",
         termsLink: "terms of service",
@@ -778,7 +762,7 @@ export const dictionaries = {
       steps: [
         { index: "01", title: "Enter the folio", body: "Located at the top of the official document we sent you." },
         { index: "02", title: "Specify the amount", body: "Must be identical to the approved subtotal. VAT will be integrated automatically at checkout." },
-        { index: "03", title: "Authorize transaction", body: "Select card, SPEI, or cash. You will get your receipt and CFDI 4.0 the same day." },
+        { index: "03", title: "Authorize transaction", body: "Settle securely with your card. You will get your receipt and CFDI 4.0 the same day." } // <-- Actualizado
       ],
       document: {
         kicker: "Official Document",

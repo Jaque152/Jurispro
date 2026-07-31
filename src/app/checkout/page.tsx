@@ -13,8 +13,6 @@ import { Action } from "@/components/ui/action";
 import { PageHero } from "@/components/page-hero";
 import { cn } from "@/lib/utils";
 
-type Method = "tarjeta" | "spei" | "oxxo";
-
 const USO_CFDI = [
   "G03 — Gastos en general",
   "G01 — Adquisición de mercancías",
@@ -60,7 +58,6 @@ export default function CheckoutPage() {
   } = useCart();
 
   const [form, setForm] = useState(initialForm);
-  const [method, setMethod] = useState<Method>("tarjeta");
   const [invoice, setInvoice] = useState(false);
   const [terms, setTerms] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -90,13 +87,11 @@ export default function CheckoutPage() {
       if (!form.razon.trim()) next.razon = t.checkoutPage.errors.required;
     }
 
-    if (method === "tarjeta") {
-      if (digits.length < 15 || digits.length > 16)
-        next.tarjeta = t.checkoutPage.errors.card;
-      if (!/^\d{2}\/\d{2}$/.test(form.vence.trim())) next.vence = t.checkoutPage.errors.expiry;
-      if (!/^\d{3,4}$/.test(form.cvv.trim())) next.cvv = t.checkoutPage.errors.cvv;
-      if (!form.titular.trim()) next.titular = t.checkoutPage.errors.required;
-    }
+    if (digits.length < 15 || digits.length > 16)
+      next.tarjeta = t.checkoutPage.errors.card;
+    if (!/^\d{2}\/\d{2}$/.test(form.vence.trim())) next.vence = t.checkoutPage.errors.expiry;
+    if (!/^\d{3,4}$/.test(form.cvv.trim())) next.cvv = t.checkoutPage.errors.cvv;
+    if (!form.titular.trim()) next.titular = t.checkoutPage.errors.required;
 
     if (!terms) next.terms = t.checkoutPage.errors.terms;
 
@@ -136,21 +131,20 @@ export default function CheckoutPage() {
           discount,
           iva,
           total,
-          method: t.checkoutPage.paymentMethods.find((m) => m.id === method)?.name ?? "KEYCOP Card",
           cardData: {
             number: form.tarjeta,
             expiry: form.vence,
             cvv: form.cvv,
             holder: form.titular,
           },
-          lang, // Enviamos el idioma actual para el email de Resend
+          lang, 
         }),
       });
 
       const data = await res.json();
 
       if (!res.ok || !data.ok) {
-        throw new Error(data.message || "Error procesando la solicitud.");
+        throw new Error(data.message || "Error procesando el pago.");
       }
 
       saveOrder({
@@ -158,7 +152,7 @@ export default function CheckoutPage() {
         createdAt: new Date().toISOString(),
         email: form.email.trim(),
         name: `${form.nombre.trim()} ${form.apellidos.trim()}`,
-        method: t.checkoutPage.paymentMethods.find((m) => m.id === method)?.name ?? "KEYCOP Card",
+        method: t.checkoutPage.paymentMethods[0].name,
         lines,
         subtotal,
         discount,
@@ -169,9 +163,9 @@ export default function CheckoutPage() {
       clear();
       setProcessing(false);
       router.push("/checkout/confirmacion");
-    } catch (err: any) {
+    } catch (err: unknown) {
       setProcessing(false);
-      toast.error(err.message || "Ocurrió un error inesperado.");
+      toast.error((err as Error).message || "Ocurrió un error inesperado.");
     }
   };
 
@@ -248,263 +242,100 @@ export default function CheckoutPage() {
           <div className="lg:col-span-7 xl:col-span-8">
             <Block index="01" title={t.checkoutPage.blocks.contact}>
               <div className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
-                <Field
-                  label={t.checkoutPage.fields.name}
-                  value={form.nombre}
-                  onChange={(v) => set("nombre", v)}
-                  error={errors.nombre}
-                  required
-                />
-                <Field
-                  label={t.checkoutPage.fields.lastName}
-                  value={form.apellidos}
-                  onChange={(v) => set("apellidos", v)}
-                  error={errors.apellidos}
-                  required
-                />
-                <Field
-                  label={t.checkoutPage.fields.email}
-                  type="email"
-                  value={form.email}
-                  onChange={(v) => set("email", v)}
-                  error={errors.email}
-                  required
-                />
-                <Field
-                  label={t.checkoutPage.fields.phone}
-                  type="tel"
-                  value={form.telefono}
-                  onChange={(v) => set("telefono", v)}
-                  error={errors.telefono}
-                  required
-                />
-                <Field
-                  label={t.checkoutPage.fields.company}
-                  value={form.empresa}
-                  onChange={(v) => set("empresa", v)}
-                  className="sm:col-span-2"
-                />
+                <Field label={t.checkoutPage.fields.name} value={form.nombre} onChange={(v) => set("nombre", v)} error={errors.nombre} required />
+                <Field label={t.checkoutPage.fields.lastName} value={form.apellidos} onChange={(v) => set("apellidos", v)} error={errors.apellidos} required />
+                <Field label={t.checkoutPage.fields.email} type="email" value={form.email} onChange={(v) => set("email", v)} error={errors.email} required />
+                <Field label={t.checkoutPage.fields.phone} type="tel" value={form.telefono} onChange={(v) => set("telefono", v)} error={errors.telefono} required />
+                <Field label={t.checkoutPage.fields.company} value={form.empresa} onChange={(v) => set("empresa", v)} className="sm:col-span-2" />
               </div>
             </Block>
 
             <Block index="02" title={t.checkoutPage.blocks.address}>
               <div className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
-                <Field
-                  label={t.checkoutPage.fields.street}
-                  value={form.calle}
-                  onChange={(v) => set("calle", v)}
-                  error={errors.calle}
-                  required
-                  className="sm:col-span-2"
-                />
-                <Field
-                  label={t.checkoutPage.fields.suburb}
-                  value={form.colonia}
-                  onChange={(v) => set("colonia", v)}
-                />
-                <Field
-                  label={t.checkoutPage.fields.zip}
-                  value={form.cp}
-                  onChange={(v) => set("cp", v.replace(/\D/g, "").slice(0, 5))}
-                  error={errors.cp}
-                  required
-                  mono
-                />
-                <Field
-                  label={t.checkoutPage.fields.city}
-                  value={form.ciudad}
-                  onChange={(v) => set("ciudad", v)}
-                  error={errors.ciudad}
-                  required
-                />
-                <Field
-                  label={t.checkoutPage.fields.state}
-                  value={form.estado}
-                  onChange={(v) => set("estado", v)}
-                  error={errors.estado}
-                  required
-                />
+                <Field label={t.checkoutPage.fields.street} value={form.calle} onChange={(v) => set("calle", v)} error={errors.calle} required className="sm:col-span-2" />
+                <Field label={t.checkoutPage.fields.suburb} value={form.colonia} onChange={(v) => set("colonia", v)} />
+                <Field label={t.checkoutPage.fields.zip} value={form.cp} onChange={(v) => set("cp", v.replace(/\D/g, "").slice(0, 5))} error={errors.cp} required mono />
+                <Field label={t.checkoutPage.fields.city} value={form.ciudad} onChange={(v) => set("ciudad", v)} error={errors.ciudad} required />
+                <Field label={t.checkoutPage.fields.state} value={form.estado} onChange={(v) => set("estado", v)} error={errors.estado} required />
               </div>
             </Block>
 
-            <Block index="03" title={t.checkoutPage.blocks.invoice}>
-              <label className="flex cursor-pointer items-start gap-4">
-                <Box
-                  checked={invoice}
-                  onChange={() => setInvoice(!invoice)}
-                  label={t.checkoutPage.fields.invoiceCheck}
-                />
-                <span>
-                  <span className="block text-[14.5px] text-ink">
-                    {t.checkoutPage.fields.invoiceCheck}
-                  </span>
-                  <span className="mt-1 block text-[13px] leading-relaxed text-ink/50">
-                    {t.checkoutPage.fields.invoiceHelp}
-                  </span>
-                </span>
-              </label>
+            {/* SECCIÓN DE PAGO EXCLUSIVA CON TARJETA + KEYCOP */}
+            <Block index="03" title={t.checkoutPage.blocks.payment}>
+              <div className="border border-ink/15 bg-paper p-6">
+                <div className="flex flex-wrap items-center justify-between gap-4 border-b border-ink/10 pb-5 mb-6">
+                  <div className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.18em] text-ink/60">
+                    <Lock className="h-3.5 w-3.5 text-claret" strokeWidth={1.6} />
+                    Pasarela procesada por KEYCOP
+                  </div>
+                  <div className="relative h-7 w-28">
+                    <Image
+                      src="/logo-keycop-2.png"
+                      alt="KEYCOP Payment Gateway"
+                      fill
+                      className="object-contain"
+                      priority
+                    />
+                  </div>
+                </div>
 
-              {invoice ? (
-                <div className="mt-8 grid gap-x-8 gap-y-6 sm:grid-cols-2">
+                <div className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
                   <Field
-                    label={t.checkoutPage.fields.rfc}
-                    value={form.rfc}
-                    onChange={(v) => set("rfc", v.toUpperCase())}
-                    error={errors.rfc}
+                    label={t.checkoutPage.fields.cardNum}
+                    value={form.tarjeta}
+                    onChange={(v) =>
+                      set(
+                        "tarjeta",
+                        v
+                          .replace(/\D/g, "")
+                          .slice(0, 16)
+                          .replace(/(.{4})/g, "$1 ")
+                          .trim(),
+                      )
+                    }
+                    error={errors.tarjeta}
                     required
                     mono
-                    placeholder="XAXX010101000"
+                    placeholder="4242 4242 4242 4242"
+                    className="sm:col-span-2"
                   />
                   <Field
-                    label={t.checkoutPage.fields.businessName}
-                    value={form.razon}
-                    onChange={(v) => set("razon", v)}
-                    error={errors.razon}
+                    label={t.checkoutPage.fields.expiry}
+                    value={form.vence}
+                    onChange={(v) => {
+                      const d = v.replace(/\D/g, "").slice(0, 4);
+                      set(
+                        "vence",
+                        d.length > 2 ? `${d.slice(0, 2)}/${d.slice(2)}` : d,
+                      );
+                    }}
+                    error={errors.vence}
                     required
+                    mono
+                    placeholder="12/28"
                   />
-                  <div className="sm:col-span-2">
-                    <span className="label-mono text-ink/45">{t.checkoutPage.fields.cfdiUse}</span>
-                    <select
-                      value={form.uso}
-                      onChange={(e) => set("uso", e.target.value)}
-                      className="field mt-2 cursor-pointer appearance-none"
-                    >
-                      {USO_CFDI.map((option) => (
-                        <option key={option} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  <Field
+                    label={t.checkoutPage.fields.cvv}
+                    type="password"
+                    value={form.cvv}
+                    onChange={(v) =>
+                      set("cvv", v.replace(/\D/g, "").slice(0, 4))
+                    }
+                    error={errors.cvv}
+                    required
+                    mono
+                    placeholder="***"
+                  />
+                  <Field
+                    label={t.checkoutPage.fields.cardholder}
+                    value={form.titular}
+                    onChange={(v) => set("titular", v)}
+                    error={errors.titular}
+                    required
+                    className="sm:col-span-2"
+                  />
                 </div>
-              ) : null}
-            </Block>
-
-            <Block index="04" title={t.checkoutPage.blocks.payment}>
-              <div className="grid gap-px bg-ink/12">
-                {t.checkoutPage.paymentMethods.map((option) => (
-                  <button
-                    key={option.id}
-                    type="button"
-                    onClick={() => setMethod(option.id as Method)}
-                    className={cn(
-                      "flex items-start gap-4 p-5 text-left transition-colors",
-                      method === option.id
-                        ? "bg-paper"
-                        : "bg-parchment hover:bg-paper/70",
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        "mt-1 flex h-4 w-4 shrink-0 items-center justify-center border transition-colors",
-                        method === option.id
-                          ? "border-claret bg-claret"
-                          : "border-ink/30",
-                      )}
-                    >
-                      {method === option.id ? (
-                        <span className="h-1.5 w-1.5 bg-paper" />
-                      ) : null}
-                    </span>
-                    <span>
-                      <span
-                        className={cn(
-                          "block text-[14.5px]",
-                          method === option.id ? "text-ink" : "text-ink/70",
-                        )}
-                      >
-                        {option.name}
-                      </span>
-                      <span className="mt-1 block font-mono text-[9.5px] uppercase tracking-[0.16em] text-ink/40">
-                        {option.detail}
-                      </span>
-                    </span>
-                  </button>
-                ))}
               </div>
-
-              {method === "tarjeta" ? (
-                <div className="mt-8 border border-ink/15 bg-paper p-6">
-                  {/* ENCABEZADO Y LOGO DE KEYCOP */}
-                  <div className="flex flex-wrap items-center justify-between gap-4 border-b border-ink/10 pb-5 mb-6">
-                    <div className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.18em] text-ink/60">
-                      <Lock className="h-3.5 w-3.5 text-claret" strokeWidth={1.6} />
-                      Pasarela procesada por KEYCOP
-                    </div>
-                    <div className="relative h-7 w-28">
-                      <Image
-                        src="/logo-keycop-2.png"
-                        alt="KEYCOP Payment Gateway"
-                        fill
-                        className="object-contain"
-                        priority
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
-                    <Field
-                      label={t.checkoutPage.fields.cardNum}
-                      value={form.tarjeta}
-                      onChange={(v) =>
-                        set(
-                          "tarjeta",
-                          v
-                            .replace(/\D/g, "")
-                            .slice(0, 16)
-                            .replace(/(.{4})/g, "$1 ")
-                            .trim(),
-                        )
-                      }
-                      error={errors.tarjeta}
-                      required
-                      mono
-                      placeholder="4242 4242 4242 4242"
-                      className="sm:col-span-2"
-                    />
-                    <Field
-                      label={t.checkoutPage.fields.expiry}
-                      value={form.vence}
-                      onChange={(v) => {
-                        const d = v.replace(/\D/g, "").slice(0, 4);
-                        set(
-                          "vence",
-                          d.length > 2 ? `${d.slice(0, 2)}/${d.slice(2)}` : d,
-                        );
-                      }}
-                      error={errors.vence}
-                      required
-                      mono
-                      placeholder="12/28"
-                    />
-                    <Field
-                      label={t.checkoutPage.fields.cvv}
-                      value={form.cvv}
-                      onChange={(v) =>
-                        set("cvv", v.replace(/\D/g, "").slice(0, 4))
-                      }
-                      error={errors.cvv}
-                      required
-                      mono
-                      placeholder="123"
-                    />
-                    <Field
-                      label={t.checkoutPage.fields.cardholder}
-                      value={form.titular}
-                      onChange={(v) => set("titular", v)}
-                      error={errors.titular}
-                      required
-                      className="sm:col-span-2"
-                    />
-                  </div>
-                </div>
-              ) : (
-                <p className="mt-6 border-l-2 border-claret bg-paper p-5 text-[13.5px] leading-relaxed text-ink/60">
-                  {method === "spei"
-                    ? t.checkoutPage.paymentNotes.spei
-                    : t.checkoutPage.paymentNotes.oxxo}
-                </p>
-              )}
             </Block>
 
             <Block index="05" title={t.checkoutPage.blocks.notes}>
@@ -519,31 +350,18 @@ export default function CheckoutPage() {
 
             <div data-error={errors.terms ? "true" : undefined}>
               <label className="flex cursor-pointer items-start gap-4">
-                <Box
-                  checked={terms}
-                  onChange={() => setTerms(!terms)}
-                  label={t.checkoutPage.errors.terms}
-                />
+                <Box checked={terms} onChange={() => setTerms(!terms)} label={t.checkoutPage.errors.terms} />
                 <span className="text-[13.5px] leading-relaxed text-ink/65">
                   {t.checkoutPage.terms.agree}
-                  <Link
-                    href="/legal/terminos-y-condiciones"
-                    className="text-claret underline underline-offset-4"
-                  >
+                  <Link href="/legal/terminos-y-condiciones" className="text-claret underline underline-offset-4">
                     {t.checkoutPage.terms.termsLink}
                   </Link>
                   , {t.checkoutPage.terms.and}
-                  <Link
-                    href="/legal/reembolsos-y-cancelaciones"
-                    className="text-claret underline underline-offset-4"
-                  >
+                  <Link href="/legal/reembolsos-y-cancelaciones" className="text-claret underline underline-offset-4">
                     {t.checkoutPage.terms.refundsLink}
                   </Link>{" "}
                   {t.checkoutPage.terms.and}
-                  <Link
-                    href="/legal/aviso-de-privacidad"
-                    className="text-claret underline underline-offset-4"
-                  >
+                  <Link href="/legal/aviso-de-privacidad" className="text-claret underline underline-offset-4">
                     {t.checkoutPage.terms.privacyLink}
                   </Link>
                   .
@@ -567,14 +385,9 @@ export default function CheckoutPage() {
 
                 <ul className="mt-6 space-y-4">
                   {lines.map((line) => (
-                    <li
-                      key={line.id}
-                      className="flex items-start justify-between gap-4 border-b border-ink/10 pb-4 last:border-0 last:pb-0"
-                    >
+                    <li key={line.id} className="flex items-start justify-between gap-4 border-b border-ink/10 pb-4 last:border-0 last:pb-0">
                       <div>
-                        <p className="max-w-[22ch] font-display text-[19px] leading-tight text-ink">
-                          {line.name}
-                        </p>
+                        <p className="max-w-[22ch] font-display text-[19px] leading-tight text-ink">{line.name}</p>
                         <p className="mt-1 font-mono text-[9.5px] uppercase tracking-[0.16em] text-ink/40">
                           {line.qty} × {formatMXN(line.price)}
                           {line.note ? ` · ${line.note}` : ""}
@@ -591,11 +404,7 @@ export default function CheckoutPage() {
               <div className="space-y-3 border-b border-ink/12 p-7 font-mono text-[11.5px] tabular-nums md:p-8">
                 <SumRow label={t.cartPage.summary.subtotal} value={formatMXN(subtotal)} />
                 {discount > 0 ? (
-                  <SumRow
-                    label={`${t.cartPage.summary.discount} · ${coupon}`}
-                    value={`− ${formatMXN(discount)}`}
-                    accent
-                  />
+                  <SumRow label={`${t.cartPage.summary.discount} · ${coupon}`} value={`− ${formatMXN(discount)}`} accent />
                 ) : null}
                 <SumRow label={t.cartPage.summary.tax} value={formatMXN(iva)} />
               </div>
@@ -608,24 +417,13 @@ export default function CheckoutPage() {
                   </span>
                 </div>
 
-                <Action
-                  type="submit"
-                  variant="claret"
-                  size="lg"
-                  className="mt-7 w-full"
-                  disabled={processing}
-                >
+                <Action type="submit" variant="claret" size="lg" className="mt-7 w-full" disabled={processing}>
                   {processing ? t.checkoutPage.processing : t.checkoutPage.payBtn}
-                  {!processing ? (
-                    <ArrowRight className="h-3 w-3" strokeWidth={1.6} />
-                  ) : null}
+                  {!processing ? <ArrowRight className="h-3 w-3" strokeWidth={1.6} /> : null}
                 </Action>
 
                 <div className="mt-6 flex items-start gap-3 border-t border-ink/12 pt-6">
-                  <ShieldCheck
-                    className="mt-0.5 h-4 w-4 shrink-0 text-claret"
-                    strokeWidth={1.4}
-                  />
+                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-claret" strokeWidth={1.4} />
                   <p className="font-mono text-[9px] uppercase leading-relaxed tracking-[0.14em] text-ink/40">
                     {t.checkoutPage.securityBadge}
                   </p>
@@ -643,12 +441,8 @@ function Block({ index, title, children }: { index: string; title: string; child
   return (
     <section className="mb-14 border-t border-ink/15 pt-8 first:border-t-0 first:pt-0">
       <div className="flex items-baseline gap-4">
-        <span className="font-mono text-[10px] tracking-[0.2em] text-claret">
-          {index}
-        </span>
-        <h2 className="font-display text-[28px] leading-none text-ink">
-          {title}
-        </h2>
+        <span className="font-mono text-[10px] tracking-[0.2em] text-claret">{index}</span>
+        <h2 className="font-display text-[28px] leading-none text-ink">{title}</h2>
       </div>
       <div className="mt-8">{children}</div>
     </section>
@@ -656,37 +450,15 @@ function Block({ index, title, children }: { index: string; title: string; child
 }
 
 function Field({ label, value, onChange, error, required, type = "text", mono, placeholder, className }: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  error?: string;
-  required?: boolean;
-  type?: string;
-  mono?: boolean;
-  placeholder?: string;
-  className?: string;
+  label: string; value: string; onChange: (value: string) => void; error?: string; required?: boolean; type?: string; mono?: boolean; placeholder?: string; className?: string;
 }) {
   return (
     <div className={className} data-error={error ? "true" : undefined}>
       <span className="label-mono text-ink/45">
         {label} {required ? <span className="text-claret">*</span> : null}
       </span>
-      <input
-        type={type}
-        value={value}
-        placeholder={placeholder}
-        onChange={(e) => onChange(e.target.value)}
-        className={cn(
-          "field mt-2",
-          mono && "font-mono tracking-[0.08em]",
-          error && "border-destructive",
-        )}
-      />
-      {error ? (
-        <p className="mt-2 font-mono text-[9.5px] uppercase tracking-[0.16em] text-destructive">
-          {error}
-        </p>
-      ) : null}
+      <input type={type} value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} className={cn("field mt-2", mono && "font-mono tracking-[0.08em]", error && "border-destructive")} />
+      {error ? <p className="mt-2 font-mono text-[9.5px] uppercase tracking-[0.16em] text-destructive">{error}</p> : null}
     </div>
   );
 }
@@ -694,20 +466,8 @@ function Field({ label, value, onChange, error, required, type = "text", mono, p
 function Box({ checked, onChange, label }: { checked: boolean; onChange: () => void; label: string }) {
   return (
     <span className="relative mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center">
-      <input
-        type="checkbox"
-        aria-label={label}
-        checked={checked}
-        onChange={onChange}
-        className="peer absolute inset-0 h-full w-full cursor-pointer opacity-0"
-      />
-      <span
-        aria-hidden="true"
-        className={cn(
-          "flex h-4 w-4 items-center justify-center border transition-colors peer-focus-visible:ring-1 peer-focus-visible:ring-claret peer-focus-visible:ring-offset-2",
-          checked ? "border-claret bg-claret" : "border-ink/30 bg-transparent",
-        )}
-      >
+      <input type="checkbox" aria-label={label} checked={checked} onChange={onChange} className="peer absolute inset-0 h-full w-full cursor-pointer opacity-0" />
+      <span aria-hidden="true" className={cn("flex h-4 w-4 items-center justify-center border transition-colors peer-focus-visible:ring-1 peer-focus-visible:ring-claret peer-focus-visible:ring-offset-2", checked ? "border-claret bg-claret" : "border-ink/30 bg-transparent")}>
         {checked ? <span className="h-1.5 w-1.5 bg-paper" /> : null}
       </span>
     </span>

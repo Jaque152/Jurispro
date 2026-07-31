@@ -92,10 +92,10 @@ export async function POST(request: Request) {
     ]);
 
     return NextResponse.json({ ok: true });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error sending contact email:", error);
     return NextResponse.json(
-      { ok: false, message: error.message || "Internal server error" },
+      { ok: false, message: (error as Error).message || "Internal server error" },
       { status: 500 }
     );
   }
