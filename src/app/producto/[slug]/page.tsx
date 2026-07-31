@@ -71,13 +71,6 @@ export default function ProductPage() {
                   </p>
                 </div>
               </div>
-
-              <dl className="mt-5 grid grid-cols-2 gap-px bg-ink/12">
-                <SpecCell label={t.productPage.specs.delivery} value={product.turnaround} />
-                <SpecCell label={t.productPage.specs.modality} value={t.productPage.specs.remote} />
-                <SpecCell label={t.productPage.specs.currency} value="MXN" />
-                <SpecCell label={t.productPage.specs.invoice} value="CFDI 4.0" />
-              </dl>
             </div>
 
             {/* detail */}
@@ -113,9 +106,6 @@ export default function ProductPage() {
                   <div className="pb-1">
                     <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-ink/45">
                       {t.productPage.taxNote}
-                    </p>
-                    <p className="mt-1 font-mono text-[11px] tabular-nums text-ink/55">
-                      {t.productPage.totalWithTax} {formatMXN(product.price + iva)}
                     </p>
                   </div>
                 ) : null}

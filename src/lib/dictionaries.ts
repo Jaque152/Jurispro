@@ -25,7 +25,6 @@ export const dictionaries = {
       contactTitle: "Contacto",
       indexTitle: "Índice",
       languageTitle: "Idioma",
-      schedule: "Lun — Vie · 9:00 a 18:00",
       rights: "Todos los derechos reservados.",
       legal: [
         { href: "/legal/terminos-y-condiciones", label: "Términos y condiciones" },
@@ -375,10 +374,8 @@ export const dictionaries = {
     productPage: {
       breadcrumbs: { home: "Inicio", store: "Tienda" },
       expLabel: "Exp.",
-      specs: { delivery: "Entrega", modality: "Modalidad", remote: "Remota", currency: "Moneda", invoice: "Factura" },
       feesLabel: "Honorarios",
       taxNote: "MXN + IVA",
-      totalWithTax: "Total con IVA",
       includesLabel: "Integración del servicio",
       descLabel: "Detalle operativo",
       afterPayNote: "Al confirmar tu pago, el sistema te enviará tu identificador de expediente y el acceso para coordinar la sesión con el especialista a cargo.",
@@ -427,7 +424,6 @@ export const dictionaries = {
       contactTitle: "Contact",
       indexTitle: "Index",
       languageTitle: "Language",
-      schedule: "Mon — Fri · 9:00 to 18:00",
       rights: "All rights reserved.",
       legal: [
         { href: "/legal/terminos-y-condiciones", label: "Terms & Conditions" },
@@ -777,10 +773,8 @@ export const dictionaries = {
     productPage: {
       breadcrumbs: { home: "Home", store: "Store" },
       expLabel: "File",
-      specs: { delivery: "Delivery", modality: "Modality", remote: "Remote", currency: "Currency", invoice: "Invoice" },
       feesLabel: "Fees",
       taxNote: "MXN + VAT",
-      totalWithTax: "Total with VAT",
       includesLabel: "Service Integration",
       descLabel: "Operational Detail",
       afterPayNote: "Upon confirming your payment, the system will send your file identifier and access to coordinate the session with the assigned specialist.",
