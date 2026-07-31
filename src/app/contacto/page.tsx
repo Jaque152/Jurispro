@@ -20,8 +20,8 @@ export default function ContactoPage() {
     },
     {
       label: t.contactPage.channels[1].label,
-      value: "resuelve@lawyerconsultant.com.mx",
-      href: "mailto:resuelve@lawyerconsultant.com.mx",
+      value: "resuelve@jurispro.com.mx",
+      href: "mailto:resuelve@jurispro.com.mx",
       detail: t.contactPage.channels[1].detail,
     },
     {
@@ -86,7 +86,7 @@ export default function ContactoPage() {
               <div className="relative aspect-[4/5] w-full overflow-hidden bg-wine">
                 <Image
                   src="https://ext.same-assets.com/4174519126/1189411628.jpeg"
-                  alt="Oficinas Lawyer Consultant"
+                  alt="Oficinas JurisPro"
                   fill
                   sizes="(max-width: 1024px) 100vw, 40vw"
                   className="object-cover duotone opacity-85"

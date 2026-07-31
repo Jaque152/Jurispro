@@ -110,8 +110,8 @@ export async function POST(request: Request) {
     if (process.env.RESEND_API_KEY && customer.email) {
       const isEs = lang === "es";
       const subject = isEs
-        ? `Confirmación de Expediente ${orderNumber} — Lawyer Consultant`
-        : `Case File Confirmation ${orderNumber} — Lawyer Consultant`;
+        ? `Confirmación de Expediente ${orderNumber} — JurisPro`
+        : `Case File Confirmation ${orderNumber} — JurisPro`;
 
       const itemsHtml = lines
         .map(
@@ -131,7 +131,7 @@ export async function POST(request: Request) {
       const emailHtml = `
         <div style="background-color: #f7f5f0; padding: 40px 20px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1a1a1a;">
           <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 32px; border: 1px solid #e0dcd5;">
-            <h1 style="font-family: serif; font-size: 28px; margin-bottom: 8px; color: #5a1224;">Lawyer Consultant</h1>
+            <h1 style="font-family: serif; font-size: 28px; margin-bottom: 8px; color: #5a1224;">JurisPro</h1>
             <p style="font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #888; margin-top: 0;">
               ${isEs ? "Confirmación de Pago" : "Payment Confirmation"}
             </p>
@@ -174,7 +174,7 @@ export async function POST(request: Request) {
       `;
 
       await resend.emails.send({
-        from: process.env.SENDER_EMAIL || "resuelve@lawyerconsultant.com.mx",
+        from: process.env.SENDER_EMAIL || "resuelve@jurispro.com.mx",
         to: [customer.email],
         subject,
         html: emailHtml,

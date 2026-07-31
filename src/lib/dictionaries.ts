@@ -354,7 +354,7 @@ export const dictionaries = {
       description: "Si posees una cotización aprobada por nuestra firma, procésala aquí de forma instantánea.",
       breadcrumbs: { home: "Inicio", pay: "Paga tu cotización" },
       subtitle: "Monto flexible, registro obligatorio.",
-      body: "Este cobro aplica únicamente a propuestas formales emitidas por Lawyer Consultant. Si careces de una, requiérela y te la enviaremos en un máximo de 48 horas hábiles.",
+      body: "Este cobro aplica únicamente a propuestas formales emitidas por JurisPro. Si careces de una, requiérela y te la enviaremos en un máximo de 48 horas hábiles.",
       noQuoteBtn: "Carezco de cotización",
       contactBtn: "Asistencia directa",
       steps: [
@@ -756,7 +756,7 @@ export const dictionaries = {
       description: "If you possess a quote approved by our firm, process it here instantly.",
       breadcrumbs: { home: "Home", pay: "Pay Quote" },
       subtitle: "Flexible amount, mandatory registry.",
-      body: "This charge applies exclusively to formal proposals issued by Lawyer Consultant. If you lack one, request it and we will send it within 48 business hours.",
+      body: "This charge applies exclusively to formal proposals issued by JurisPro. If you lack one, request it and we will send it within 48 business hours.",
       noQuoteBtn: "I lack a quote",
       contactBtn: "Direct assistance",
       steps: [
