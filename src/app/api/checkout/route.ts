@@ -277,7 +277,7 @@ export async function POST(req: Request) {
 function buildEmailTemplate({ 
   orderId, form, items, subtotal, discount, iva, total, lang, transactionId 
 }: { 
-  orderId: string, form: any, items: CartLineItem[], subtotal: number, discount: number, iva: number, total: number, lang: string, transactionId: string 
+  orderId: string, form: CustomerData, items: CartLineItem[], subtotal: number, discount: number, iva: number, total: number, lang: string, transactionId: string 
 }) {
   const isEn = lang === "en";
   const itemsListHtml = items.map((line: CartLineItem) => `
