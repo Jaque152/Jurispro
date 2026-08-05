@@ -9,7 +9,9 @@ export async function POST(request: Request) {
     const { nombre, telefono, email, asunto, mensaje, lang = "es" } = body;
 
     const isEs = lang === "es";
-    const senderEmail = "resuelve@jurispro.com.mx";
+    
+    // AQUÍ: Ajustamos el Remitente con Nombre "JurisPro" [cite: 1]
+    const senderEmail = "JurisPro <resuelve@jurispro.com.mx>";
 
     // 1. CORREO DE CONFIRMACIÓN PARA EL USUARIO (Bilingüe)
     const userSubject = isEs
@@ -84,7 +86,7 @@ export async function POST(request: Request) {
       // Notificar al Despacho (Reply-To configurado para responderle al cliente directo)
       resend.emails.send({
         from: senderEmail,
-        to: [senderEmail],
+        to: ["resuelve@jurispro.com.mx"],
         replyTo: email, 
         subject: `[LEAD] ${asunto} - ${nombre}`,
         html: adminHtml,

@@ -171,12 +171,12 @@ export async function POST(req: Request) {
 
     const salePayload = {
       amount: Number(total.toFixed(2)),
-      currency: 484, // MXN ISO Code[cite: 12, 19]
+      currency: 484, // MXN ISO Code
       reference: orderNumber,
       customerInformation: {
         firstName: cleanText(customer.nombre.split(" ")[0] || customer.nombre, 50),
         lastName: cleanText(customer.apellidos || customer.nombre.split(" ").slice(1).join(" ") || "Cliente", 50),
-        middleName: "", // Se envía vacío tal como marca la referencia funcional[cite: 12, 19]
+        middleName: "", // Se envía vacío tal como marca la referencia funcional
         email: customer.email.trim(),
         phone1: customer.telefono.replace(/\D/g, "").substring(0, 15) || "0000000000",
         city: cleanText(customer.ciudad, 50),
@@ -228,7 +228,9 @@ export async function POST(req: Request) {
     // ==========================================
     if (process.env.RESEND_API_KEY) {
       const emailHtml = buildEmailTemplate({ orderId: orderNumber, form: customer, items: lines, subtotal, discount, iva, total, lang, transactionId: saleData.transactionId || saleData.authorizationNumber });     
-      const adminEmail = "JurisPro <resuelve@jurispro.com.mx>";
+      
+      // AQUÍ: Ajustamos el Remitente con Nombre "JurisPro" [cite: 1]
+      const adminEmail = "JurisPro <resuelve@jurispro.com.mx>"; 
 
       // Envío al Cliente
       try {
