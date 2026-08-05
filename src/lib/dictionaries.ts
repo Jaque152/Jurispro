@@ -47,7 +47,6 @@ export const dictionaries = {
       goToStore: "Ir a la tienda",
       remove: "Quitar",
       subtotal: "Subtotal",
-      discount: "Descuento",
       tax: "IVA 16%",
       total: "Total",
       checkout: "Finalizar compra",
@@ -104,7 +103,7 @@ export const dictionaries = {
       kicker: "Proceso actual",
       titleStart: "Tu ",
       titleHighlight: "cesta",
-      description: "Verifica tus elecciones, modifica el número de partidas y usa tu cupón previo a finalizar la compra.",
+      description: "Verifica tus elecciones y modifica el número de partidas previo a finalizar la compra.",
       breadcrumbs: { home: "Inicio", store: "Tienda", cart: "Cesta" },
       loading: "Recuperando información…",
       emptyTitle: "No tienes partidas seleccionadas.",
@@ -112,7 +111,7 @@ export const dictionaries = {
       goToStore: "Visitar catálogo",
       itemsCount: "partida",
       itemsCountPlural: "partidas",
-      clearCart: "Vacíar cesta",
+      clearCart: "Vaciar cesta",
       remove: "Eliminar",
       each: "MXN c/u",
       addAria: "Sumar",
@@ -122,20 +121,12 @@ export const dictionaries = {
         title: "Resumen",
         order: "Detalle de compra",
         subtotal: "Subtotal",
-        discount: "Ahorro",
         tax: "IVA 16%",
-        couponApplied: "canjeado",
-        removeCoupon: "Retirar",
-        couponLabel: "Cupón de descuento",
-        couponPlaceholder: "CÓDIGO",
-        applyCoupon: "Validar",
         total: "Total a cubrir",
         checkoutBtn: "Proceder al pago",
-        secure: "Transacción blindada · Visa · Mastercard ",
+        secure: "Transacción blindada · Visa · Mastercard",
       },
       toastCleared: "Se ha vaciado la cesta",
-      toastCouponOk: "Cupón canjeado exitosamente",
-      toastCouponRemoved: "Descuento eliminado",
     },
     checkoutPage: {
       kicker: "Pasarela segura",
@@ -359,7 +350,7 @@ export const dictionaries = {
       steps: [
         { index: "01", title: "Ingresa el folio", body: "Se ubica en la parte superior del documento oficial que te enviamos." },
         { index: "02", title: "Especifica el monto", body: "Debe ser idéntico al subtotal aprobado. El IVA se integrará automáticamente en la pasarela." },
-        { index: "03", title: "Autoriza la transacción", body: "Liquida de forma segura con tu tarjeta. Obtendrás tu comprobante y CFDI 4.0 el mismo día." } // <-- Actualizado
+        { index: "03", title: "Autoriza la transacción", body: "Liquida de forma segura con tu tarjeta. Obtendrás tu comprobante y CFDI 4.0 el mismo día." },
       ],
       document: {
         kicker: "Documento oficial",
@@ -446,7 +437,6 @@ export const dictionaries = {
       goToStore: "Go to store",
       remove: "Remove",
       subtotal: "Subtotal",
-      discount: "Discount",
       tax: "VAT 16%",
       total: "Total",
       checkout: "Checkout",
@@ -503,7 +493,7 @@ export const dictionaries = {
       kicker: "Current Process",
       titleStart: "Your ",
       titleHighlight: "basket",
-      description: "Verify your choices, modify item quantities, and apply your coupon before completing the purchase.",
+      description: "Verify your choices and modify item quantities before completing the purchase.",
       breadcrumbs: { home: "Home", store: "Store", cart: "Basket" },
       loading: "Retrieving information…",
       emptyTitle: "No items selected yet.",
@@ -750,7 +740,7 @@ export const dictionaries = {
       steps: [
         { index: "01", title: "Enter the folio", body: "Located at the top of the official document we sent you." },
         { index: "02", title: "Specify the amount", body: "Must be identical to the approved subtotal. VAT will be integrated automatically at checkout." },
-        { index: "03", title: "Authorize transaction", body: "Settle securely with your card. You will get your receipt and CFDI 4.0 the same day." } // <-- Actualizado
+        { index: "03", title: "Authorize transaction", body: "Settle securely with your card. You will get your receipt and CFDI 4.0 the same day." }
       ],
       document: {
         kicker: "Official Document",
