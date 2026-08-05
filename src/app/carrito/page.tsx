@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { ArrowRight, Minus, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { useCart } from "@/lib/cart-context";
@@ -11,23 +10,21 @@ import { Action } from "@/components/ui/action";
 import { PageHero } from "@/components/page-hero";
 
 export default function CarritoPage() {
+  // LIMPIEZA: Se eliminaron discount, coupon, applyCoupon y removeCoupon
   const {
     lines,
     setQty,
     remove,
     clear,
     subtotal,
-    discount,
     iva,
     total,
     count,
-    coupon,
-    applyCoupon,
-    removeCoupon,
     hydrated,
   } = useCart();
   const { t } = useLanguage();
-  const [code, setCode] = useState("");
+  
+  // LIMPIEZA: Se eliminó const [code, setCode] = useState("");
 
   return (
     <>
@@ -173,8 +170,12 @@ export default function CarritoPage() {
 
                   <div className="mt-7 space-y-3 border-t border-ink/12 pt-6 font-mono text-[11.5px] tabular-nums">
                     <Row label={t.cartPage.summary.subtotal} value={formatMXN(subtotal)} />
+                    {/* LIMPIEZA: Se eliminó el bloque condicional del descuento */}
                     <Row label={t.cartPage.summary.tax} value={formatMXN(iva)} />
                   </div>
+
+                  {/* LIMPIEZA: Se eliminó el div completo que contenía la lógica del input del cupón */}
+
                   <div className="mt-7 flex items-end justify-between border-t border-ink/15 pt-6">
                     <span className="label-mono text-ink/50">{t.cartPage.summary.total}</span>
                     <span className="font-display text-[38px] leading-none tabular-nums text-ink">
