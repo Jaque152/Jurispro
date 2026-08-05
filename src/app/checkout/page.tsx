@@ -314,29 +314,6 @@ export default function CheckoutPage() {
               </div>
             </Block>
 
-            <Block index="03" title={t.checkoutPage.blocks.invoice}>
-              <label className="flex cursor-pointer items-start gap-4">
-                <Box checked={invoice} onChange={() => setInvoice(!invoice)} label={t.checkoutPage.fields.invoiceCheck} />
-                <span>
-                  <span className="block text-[14.5px] text-ink">{t.checkoutPage.fields.invoiceCheck}</span>
-                  <span className="mt-1 block text-[13px] leading-relaxed text-ink/50">{t.checkoutPage.fields.invoiceHelp}</span>
-                </span>
-              </label>
-
-              {invoice ? (
-                <div className="mt-8 grid gap-x-8 gap-y-6 sm:grid-cols-2">
-                  <Field label={t.checkoutPage.fields.rfc} value={form.rfc} onChange={(v) => set("rfc", v.toUpperCase())} error={errors.rfc} required mono placeholder="XAXX010101000" disabled={processing} />
-                  <Field label={t.checkoutPage.fields.businessName} value={form.razon} onChange={(v) => set("razon", v)} error={errors.razon} required disabled={processing} />
-                  <div className="sm:col-span-2">
-                    <span className="label-mono text-ink/45">{t.checkoutPage.fields.cfdiUse}</span>
-                    <select disabled={processing} value={form.uso} onChange={(e) => set("uso", e.target.value)} className="field mt-2 cursor-pointer appearance-none">
-                      {USO_CFDI.map((option) => (<option key={option} value={option}>{option}</option>))}
-                    </select>
-                  </div>
-                </div>
-              ) : null}
-            </Block>
-
             <Block index="04" title={t.checkoutPage.blocks.payment}>
               <div className="border border-ink/15 bg-paper p-6">
                 <div className="flex flex-wrap items-center justify-between gap-4 border-b border-ink/10 pb-5 mb-6">
