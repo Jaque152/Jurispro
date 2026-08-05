@@ -181,9 +181,10 @@ export default function CheckoutPage() {
       clear();
       setProcessing(false);
       router.push("/checkout/confirmacion");
-    } catch (err: any) {
+    } catch (err: unknown) {
       setProcessing(false);
-      toast.error(err.message || "Ocurrió un error inesperado al contactar con el banco.");
+      const errorMessage = err instanceof Error ? err.message : "Ocurrió un error inesperado al contactar con el banco.";
+      toast.error(errorMessage);
     }
   };
 
