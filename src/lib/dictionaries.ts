@@ -28,7 +28,7 @@ export const dictionaries = {
       rights: "Todos los derechos reservados.",
       legal: [
         { href: "/legal/terminos-y-condiciones", label: "Términos y condiciones" },
-        { href: "/legal/reembolsos-y-cancelaciones", label: "Reembolsos y cancelaciones" },
+        { href: "/legal/reembolsos-y-cancelaciones", label: "Política de reembolsos y cancelaciones" },
         { href: "/legal/aviso-de-privacidad", label: "Aviso de privacidad" },
       ],
       sitemap: [
@@ -204,8 +204,6 @@ export const dictionaries = {
       nextStepsTitle: "Próximas acciones",
       steps: [
         { step: "01", title: "Verifica tu bandeja", body: "Te hemos mandado el recibo, el número de registro y la factura fiscal si la pediste." },
-        { step: "02", title: "Fija tu cita", body: "Ahí mismo hallarás el enlace para seleccionar la fecha y hora con tu asesor jurídico." },
-        { step: "03", title: "Reúne tu información", body: "Sube tus archivos, escrituras o historial mediante el portal encriptado que te proporcionaremos." },
       ],
       btnStore: "Continuar viendo trámites",
       btnContact: "Contactar a la firma",
@@ -594,8 +592,6 @@ export const dictionaries = {
       nextStepsTitle: "Next Actions",
       steps: [
         { step: "01", title: "Check your inbox", body: "We have sent your receipt, registration number, and tax invoice if requested." },
-        { step: "02", title: "Set your appointment", body: "Right there you will find the link to select the date and time with your legal advisor." },
-        { step: "03", title: "Gather your info", body: "Upload your files, deeds, or background info via the encrypted portal we will provide." },
       ],
       btnStore: "Continue browsing services",
       btnContact: "Contact the firm",
