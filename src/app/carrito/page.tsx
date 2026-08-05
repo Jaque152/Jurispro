@@ -173,69 +173,8 @@ export default function CarritoPage() {
 
                   <div className="mt-7 space-y-3 border-t border-ink/12 pt-6 font-mono text-[11.5px] tabular-nums">
                     <Row label={t.cartPage.summary.subtotal} value={formatMXN(subtotal)} />
-                    {discount > 0 ? (
-                      <Row
-                        label={`${t.cartPage.summary.discount} · ${coupon}`}
-                        value={`− ${formatMXN(discount)}`}
-                        accent
-                      />
-                    ) : null}
                     <Row label={t.cartPage.summary.tax} value={formatMXN(iva)} />
                   </div>
-
-                  {/* coupon */}
-                  <div className="mt-7 border-t border-ink/12 pt-6">
-                    {coupon ? (
-                      <div className="flex items-center justify-between gap-3 border border-claret/40 bg-claret/8 px-4 py-3">
-                        <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-claret">
-                          {coupon} {t.cartPage.summary.couponApplied}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            removeCoupon();
-                            toast(t.cartPage.toastCouponRemoved);
-                          }}
-                          className="font-mono text-[9px] uppercase tracking-[0.18em] text-ink/45 hover:text-claret"
-                        >
-                          {t.cartPage.summary.removeCoupon}
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="flex items-end gap-3">
-                        <label className="flex-1">
-                          <span className="label-mono text-ink/45">
-                            {t.cartPage.summary.couponLabel}
-                          </span>
-                          <input
-                            value={code}
-                            onChange={(e) => setCode(e.target.value)}
-                            placeholder={t.cartPage.summary.couponPlaceholder}
-                            className="field mt-2 font-mono uppercase tracking-[0.1em]"
-                          />
-                        </label>
-                        <Action
-                          variant="outline"
-                          size="sm"
-                          className="h-11"
-                          onClick={() => {
-                            const res = applyCoupon(code);
-                            if (res.ok) {
-                              toast.success(t.cartPage.toastCouponOk, {
-                                description: res.message,
-                              });
-                              setCode("");
-                            } else {
-                              toast.error(res.message);
-                            }
-                          }}
-                        >
-                          {t.cartPage.summary.applyCoupon}
-                        </Action>
-                      </div>
-                    )}
-                  </div>
-
                   <div className="mt-7 flex items-end justify-between border-t border-ink/15 pt-6">
                     <span className="label-mono text-ink/50">{t.cartPage.summary.total}</span>
                     <span className="font-display text-[38px] leading-none tabular-nums text-ink">

@@ -185,15 +185,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     () => lines.reduce((sum, l) => sum + l.price * l.qty, 0),
     [lines],
   );
-  const discount = useMemo(
-    () => (coupon ? Math.round(subtotal * COUPONS[coupon].pct * 100) / 100 : 0),
-    [coupon, subtotal],
-  );
+
   const iva = useMemo(
-    () => Math.round((subtotal - discount) * IVA_RATE * 100) / 100,
-    [subtotal, discount],
+    () => Math.round(subtotal * IVA_RATE * 100) / 100,
+    [subtotal],
   );
-  const total = subtotal - discount + iva;
+  const total = subtotal + iva;
   const count = useMemo(
     () => lines.reduce((sum, l) => sum + l.qty, 0),
     [lines],
@@ -203,7 +200,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     lines,
     count,
     subtotal,
-    discount,
+    discount: 0,
     iva,
     total,
     coupon,

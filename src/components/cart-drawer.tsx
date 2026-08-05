@@ -140,13 +140,6 @@ export function CartDrawer() {
             <footer className="border-t border-ink/12 bg-paper px-6 py-6">
               <dl className="space-y-2 font-mono text-[11px] tabular-nums">
                 <Row label={t.cart.subtotal} value={formatMXN(subtotal)} />
-                {discount > 0 ? (
-                  <Row
-                    label={`${t.cart.discount} · ${coupon}`}
-                    value={`− ${formatMXN(discount)}`}
-                    accent
-                  />
-                ) : null}
                 <Row label={t.cart.tax} value={formatMXN(iva)} />
               </dl>
 

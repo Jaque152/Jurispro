@@ -103,8 +103,8 @@ export function SiteFooter() {
         </div>
 
         {/* oversized wordmark */}
-        <div className="mt-20 select-none overflow-hidden">
-          <span className="block whitespace-nowrap font-display text-[15vw] leading-[0.8] tracking-[-0.03em] text-paper/8">
+        <div className="mt-10 select-none ">
+          <span className="block font-display text-[10vw] leading-[1.0] tracking-[-0.03em] text-paper/8">
             JurisPro
           </span>
         </div>

@@ -20,6 +20,17 @@ const USO_CFDI = [
   "D10 — Pagos por servicios educativos",
 ];
 
+const PAISES = [
+  { value: "MX", label: "México" },
+  { value: "US", label: "Estados Unidos" },
+  { value: "CA", label: "Canadá" },
+  { value: "CO", label: "Colombia" },
+  { value: "AR", label: "Argentina" },
+  { value: "CL", label: "Chile" },
+  { value: "PE", label: "Perú" },
+  { value: "ES", label: "España" },
+];
+
 const initialForm = {
   nombre: "",
   apellidos: "",
@@ -31,6 +42,7 @@ const initialForm = {
   ciudad: "",
   estado: "",
   cp: "",
+  pais: "MX", // País por defecto seleccionado
   rfc: "",
   razon: "",
   uso: USO_CFDI[0],
@@ -125,6 +137,12 @@ export default function CheckoutPage() {
             apellidos: form.apellidos.trim(),
             email: form.email.trim(),
             telefono: form.telefono.trim(),
+            calle: form.calle.trim(),
+            colonia: form.colonia.trim(),
+            ciudad: form.ciudad.trim(),
+            estado: form.estado.trim(),
+            cp: form.cp.trim(),
+            pais: form.pais, // Enviamos el código de país seleccionado
           },
           lines,
           subtotal,
@@ -163,9 +181,9 @@ export default function CheckoutPage() {
       clear();
       setProcessing(false);
       router.push("/checkout/confirmacion");
-    } catch (err: unknown) {
+    } catch (err: any) {
       setProcessing(false);
-      toast.error((err as Error).message || "Ocurrió un error inesperado.");
+      toast.error(err.message || "Ocurrió un error inesperado al contactar con el banco.");
     }
   };
 
@@ -242,26 +260,30 @@ export default function CheckoutPage() {
           <div className="lg:col-span-7 xl:col-span-8">
             <Block index="01" title={t.checkoutPage.blocks.contact}>
               <div className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
-                <Field label={t.checkoutPage.fields.name} value={form.nombre} onChange={(v) => set("nombre", v)} error={errors.nombre} required />
-                <Field label={t.checkoutPage.fields.lastName} value={form.apellidos} onChange={(v) => set("apellidos", v)} error={errors.apellidos} required />
-                <Field label={t.checkoutPage.fields.email} type="email" value={form.email} onChange={(v) => set("email", v)} error={errors.email} required />
-                <Field label={t.checkoutPage.fields.phone} type="tel" value={form.telefono} onChange={(v) => set("telefono", v)} error={errors.telefono} required />
-                <Field label={t.checkoutPage.fields.company} value={form.empresa} onChange={(v) => set("empresa", v)} className="sm:col-span-2" />
+                <Field label={t.checkoutPage.fields.name} value={form.nombre} onChange={(v) => set("nombre", v)} error={errors.nombre} required disabled={processing} />
+                <Field label={t.checkoutPage.fields.lastName} value={form.apellidos} onChange={(v) => set("apellidos", v)} error={errors.apellidos} required disabled={processing} />
+                <Field label={t.checkoutPage.fields.email} type="email" value={form.email} onChange={(v) => set("email", v)} error={errors.email} required disabled={processing} />
+                <Field label={t.checkoutPage.fields.phone} type="tel" value={form.telefono} onChange={(v) => set("telefono", v)} error={errors.telefono} required disabled={processing} />
+                <Field label={t.checkoutPage.fields.company} value={form.empresa} onChange={(v) => set("empresa", v)} className="sm:col-span-2" disabled={processing} />
               </div>
             </Block>
 
             <Block index="02" title={t.checkoutPage.blocks.address}>
               <div className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
-                <Field label={t.checkoutPage.fields.street} value={form.calle} onChange={(v) => set("calle", v)} error={errors.calle} required className="sm:col-span-2" />
-                <Field label={t.checkoutPage.fields.suburb} value={form.colonia} onChange={(v) => set("colonia", v)} />
-                <Field label={t.checkoutPage.fields.zip} value={form.cp} onChange={(v) => set("cp", v.replace(/\D/g, "").slice(0, 5))} error={errors.cp} required mono />
-                <Field label={t.checkoutPage.fields.city} value={form.ciudad} onChange={(v) => set("ciudad", v)} error={errors.ciudad} required />
-                <Field label={t.checkoutPage.fields.state} value={form.estado} onChange={(v) => set("estado", v)} error={errors.estado} required />
+                <Field label={t.checkoutPage.fields.street} value={form.calle} onChange={(v) => set("calle", v)} error={errors.calle} required className="sm:col-span-2" disabled={processing} />
+                <Field label={t.checkoutPage.fields.suburb} value={form.colonia} onChange={(v) => set("colonia", v)} disabled={processing} />
+                <Field label={t.checkoutPage.fields.zip} value={form.cp} onChange={(v) => set("cp", v.replace(/\D/g, "").slice(0, 5))} error={errors.cp} required mono disabled={processing} />
+                <Field label={t.checkoutPage.fields.city} value={form.ciudad} onChange={(v) => set("ciudad", v)} error={errors.ciudad} required disabled={processing} />
+                <Field label={t.checkoutPage.fields.state} value={form.estado} onChange={(v) => set("estado", v)} error={errors.estado} required disabled={processing} />
+                <div className="sm:col-span-2">
+                  <span className="label-mono text-ink/45">{lang === "en" ? "Country" : "País"}</span>
+                  <select disabled={processing} value={form.pais} onChange={(e) => set("pais", e.target.value)} className="field mt-2 cursor-pointer appearance-none">
+                    {PAISES.map((option) => (<option key={option.value} value={option.value}>{option.label}</option>))}
+                  </select>
+                </div>
               </div>
             </Block>
-
-            {/* SECCIÓN DE PAGO EXCLUSIVA CON TARJETA + KEYCOP */}
-            <Block index="03" title={t.checkoutPage.blocks.payment}>
+            <Block index="04" title={t.checkoutPage.blocks.payment}>
               <div className="border border-ink/15 bg-paper p-6">
                 <div className="flex flex-wrap items-center justify-between gap-4 border-b border-ink/10 pb-5 mb-6">
                   <div className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.18em] text-ink/60">
@@ -298,6 +320,7 @@ export default function CheckoutPage() {
                     mono
                     placeholder="4242 4242 4242 4242"
                     className="sm:col-span-2"
+                    disabled={processing}
                   />
                   <Field
                     label={t.checkoutPage.fields.expiry}
@@ -313,6 +336,7 @@ export default function CheckoutPage() {
                     required
                     mono
                     placeholder="12/28"
+                    disabled={processing}
                   />
                   <Field
                     label={t.checkoutPage.fields.cvv}
@@ -324,7 +348,8 @@ export default function CheckoutPage() {
                     error={errors.cvv}
                     required
                     mono
-                    placeholder="***"
+                    placeholder="•••"
+                    disabled={processing}
                   />
                   <Field
                     label={t.checkoutPage.fields.cardholder}
@@ -333,6 +358,7 @@ export default function CheckoutPage() {
                     error={errors.titular}
                     required
                     className="sm:col-span-2"
+                    disabled={processing}
                   />
                 </div>
               </div>
@@ -345,6 +371,7 @@ export default function CheckoutPage() {
                 rows={4}
                 placeholder={t.checkoutPage.fields.notesPlaceholder}
                 className="field resize-none"
+                disabled={processing}
               />
             </Block>
 
@@ -449,15 +476,15 @@ function Block({ index, title, children }: { index: string; title: string; child
   );
 }
 
-function Field({ label, value, onChange, error, required, type = "text", mono, placeholder, className }: {
-  label: string; value: string; onChange: (value: string) => void; error?: string; required?: boolean; type?: string; mono?: boolean; placeholder?: string; className?: string;
+function Field({ label, value, onChange, error, required, type = "text", mono, placeholder, className, disabled }: {
+  label: string; value: string; onChange: (value: string) => void; error?: string; required?: boolean; type?: string; mono?: boolean; placeholder?: string; className?: string; disabled?: boolean;
 }) {
   return (
     <div className={className} data-error={error ? "true" : undefined}>
       <span className="label-mono text-ink/45">
         {label} {required ? <span className="text-claret">*</span> : null}
       </span>
-      <input type={type} value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} className={cn("field mt-2", mono && "font-mono tracking-[0.08em]", error && "border-destructive")} />
+      <input disabled={disabled} type={type} value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} className={cn("field mt-2 disabled:opacity-50", mono && "font-mono tracking-[0.08em]", error && "border-destructive")} />
       {error ? <p className="mt-2 font-mono text-[9.5px] uppercase tracking-[0.16em] text-destructive">{error}</p> : null}
     </div>
   );

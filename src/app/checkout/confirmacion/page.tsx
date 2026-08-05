@@ -159,12 +159,7 @@ export default function ConfirmacionPage() {
                       <span>{t.cartPage.summary.subtotal}</span>
                       <span>{formatMXN(lastOrder.subtotal)}</span>
                     </div>
-                    {lastOrder.discount > 0 ? (
-                      <div className="flex justify-between text-claret">
-                        <span>{t.cartPage.summary.discount}</span>
-                        <span>− {formatMXN(lastOrder.discount)}</span>
-                      </div>
-                    ) : null}
+
                     <div className="flex justify-between text-ink/55">
                       <span>{t.cartPage.summary.tax}</span>
                       <span>{formatMXN(lastOrder.iva)}</span>
