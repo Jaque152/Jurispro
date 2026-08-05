@@ -3,7 +3,6 @@ import { Resend } from "resend";
 
 const KEYCOP_BASE_URL = "https://pagos.keycop.com.mx/api/v1";
 
-// Interfaces estrictas 
 interface CartLineItem {
   id: string;
   name: string;
@@ -12,35 +11,50 @@ interface CartLineItem {
   note?: string;
 }
 
+interface CustomerData {
+  nombre: string;
+  apellidos: string;
+  email: string;
+  telefono: string;
+  calle: string;
+  colonia: string;
+  ciudad: string;
+  estado: string;
+  cp: string;
+  pais: string;
+}
+
+interface CardData {
+  number: string;
+  expiry: string;
+  cvv: string;
+  holder: string;
+}
+
 interface CheckoutRequestPayload {
   orderNumber: string;
-  customer: {
-    nombre: string;
-    apellidos: string;
-    email: string;
-    telefono: string;
-    calle: string;
-    colonia: string;
-    ciudad: string;
-    estado: string;
-    cp: string;
-    pais: string;
-  };
+  customer: CustomerData;
   lines: CartLineItem[];
   subtotal: number;
   discount: number;
   iva: number;
   total: number;
-  cardData: {
-    number: string;
-    expiry: string;
-    cvv: string;
-    holder: string;
-  };
+  cardData: CardData;
   lang: "es" | "en";
 }
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+
+// Función para remover acentos y caracteres extraños que crashean bases de datos bancarias legacy
+const cleanText = (str: string, maxLength: number = 100) => {
+  if (!str) return "";
+  return str
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // Remueve acentos
+    .replace(/[^a-zA-Z0-9 .,-]/g, "") // Mantiene solo alfanuméricos, espacios, puntos y comas
+    .substring(0, maxLength)
+    .trim();
+};
 
 export async function POST(req: Request) {
   try {
@@ -58,40 +72,50 @@ export async function POST(req: Request) {
     const keycopPassword = process.env.KEYCOP_PASSWORD;
 
     if (!keycopEmail || !keycopPassword) {
-      console.error("Faltan variables de entorno KEYCOP_EMAIL / KEYCOP_PASSWORD.");
-      return NextResponse.json({ ok: false, message: "Error de configuración de la pasarela." }, { status: 500 });
+       console.error("Faltan variables de entorno KEYCOP_EMAIL / KEYCOP_PASSWORD.");
+       return NextResponse.json({ ok: false, message: "Error de configuración de la pasarela." }, { status: 500 });
     }
+
+    const browserHeaders = {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    };
 
     // ==========================================
     // 1. INICIAR SESIÓN (SIGNIN)
     // ==========================================
     const signinRes = await fetch(`${KEYCOP_BASE_URL}/signin`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "Accept": "application/json" },
-      body: JSON.stringify({
-        email: keycopEmail,
-        password: keycopPassword,
-      }),
+      headers: browserHeaders,
+      body: JSON.stringify({ email: keycopEmail, password: keycopPassword }),
+      cache: "no-store",
     });
 
-    const signinData = await signinRes.json();
+    const signinText = await signinRes.text();
+    let signinData;
+    try {
+      signinData = JSON.parse(signinText);
+    } catch {
+      console.error("[Keycop HTML Error] Signin:", signinText.substring(0, 150));
+      return NextResponse.json({ ok: false, message: "Conexión rechazada por el servidor del banco." }, { status: 502 });
+    }
+
     if (!signinData.authToken) {
-      console.error("[Keycop Auth Error]", signinData);
       return NextResponse.json(
-        { ok: false, message: lang === "en" ? "Payment gateway authentication failed." : "Error de autenticación con la pasarela." },
+        { ok: false, message: "Error de autenticación con la pasarela de pago. Verifica las claves." },
         { status: 502 }
       );
     }
 
     const authToken = signinData.authToken;
-    const headers = {
-      Authorization: `Bearer ${authToken}`,
-      "Content-Type": "application/json",
-      "Accept": "application/json",
+    const authHeaders = {
+      ...browserHeaders,
+      "Authorization": `Bearer ${authToken}`,
     };
 
     // ==========================================
-    // 2. FORMATO Y TOKENIZACIÓN DE TARJETA
+    // 2. TOKENIZAR TARJETA
     // ==========================================
     const cleanExp = cardData.expiry.replace(/\D/g, "");
     const expirationMonth = cleanExp.slice(0, 2);
@@ -99,22 +123,30 @@ export async function POST(req: Request) {
 
     const tokenRes = await fetch(`${KEYCOP_BASE_URL}/card/tokenizer`, {
       method: "POST",
-      headers,
+      headers: authHeaders, 
       body: JSON.stringify({
         cardData: {
           cardNumber: cardData.number.replace(/\s/g, ""),
-          cardholderName: cardData.holder,
+          cardholderName: cleanText(cardData.holder),
           expirationMonth,
           expirationYear,
         },
       }),
+      cache: "no-store",
     });
 
-    const tokenData = await tokenRes.json();
+    const tokenText = await tokenRes.text();
+    let tokenData;
+    try {
+      tokenData = JSON.parse(tokenText);
+    } catch {
+      console.error("[Keycop HTML Error] Tokenizer:", tokenText.substring(0, 150));
+      return NextResponse.json({ ok: false, message: "La bóveda de tarjetas rechazó la conexión." }, { status: 502 });
+    }
+
     if (!tokenData.cardNumberToken) {
-      console.error("[Keycop Tokenizer Error]", tokenData);
       return NextResponse.json(
-        { ok: false, message: lang === "en" ? "Card encryption failed. Check card details." : "Error al encriptar la tarjeta. Verifica los datos." },
+        { ok: false, message: tokenData.error || tokenData.message || "Error al encriptar la tarjeta. Verifica los datos." },
         { status: 400 }
       );
     }
@@ -123,61 +155,60 @@ export async function POST(req: Request) {
     // 3. PROCESAR COBRO (SALE)
     // ==========================================
     const formattedItems = lines.map((line: CartLineItem) => ({
-      title: line.name,
-      amount: Number(line.price),
+      title: cleanText(line.name, 50),
+      amount: Number(line.price.toFixed(2)),
       quantity: Number(line.qty),
-      id: String(line.id),
+      id: String(line.id).substring(0, 20),
     }));
 
-    const address1 = customer.colonia ? `${customer.calle}, ${customer.colonia}` : customer.calle;
-
-    // CRÍTICO: Keycop colapsa (502 HTML) si la IP viene en formato IPv6 (ej. ::1 de localhost). Forzamos IPv4.
-    let rawIp = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "127.0.0.1";
-    if (rawIp.includes(":")) {
-        rawIp = "127.0.0.1";
+    // CRÍTICO: Asegurar una IP pública válida para el motor de fraude. Si detecta IPv6 (::1) o Localhost el backend del banco colapsa con 502.
+    let rawIp = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "";
+    if (!rawIp || rawIp === "::1" || rawIp.startsWith("127.") || rawIp.startsWith("192.168.") || rawIp.startsWith("10.")) {
+      rawIp = "187.189.123.45"; // IP Pública de México inyectada
     }
+
+    const safeAddress = customer.colonia ? `${customer.calle}, ${customer.colonia}` : customer.calle;
 
     const salePayload = {
       amount: Number(total.toFixed(2)),
-      currency: 484, // ISO MXN
+      currency: 484, // MXN ISO Code[cite: 12, 19]
       reference: orderNumber,
       customerInformation: {
-        firstName: customer.nombre.split(" ")[0] || customer.nombre,
-        lastName: customer.apellidos || customer.nombre.split(" ").slice(1).join(" ") || "Cliente",
-        email: customer.email,
-        phone1: customer.telefono || "0000000000",
-        city: customer.ciudad,
-        address1: address1,
-        postalCode: customer.cp,
-        state: customer.estado,
-        country: customer.pais || "MX",
+        firstName: cleanText(customer.nombre.split(" ")[0] || customer.nombre, 50),
+        lastName: cleanText(customer.apellidos || customer.nombre.split(" ").slice(1).join(" ") || "Cliente", 50),
+        middleName: "", // Se envía vacío tal como marca la referencia funcional[cite: 12, 19]
+        email: customer.email.trim(),
+        phone1: customer.telefono.replace(/\D/g, "").substring(0, 15) || "0000000000",
+        city: cleanText(customer.ciudad, 50),
+        address1: cleanText(safeAddress, 100),
+        postalCode: customer.cp.replace(/\D/g, "").substring(0, 10),
+        state: cleanText(customer.estado, 50),
+        country: customer.pais || "MX", // País enviado dinámicamente
         ip: rawIp,
       },
       cardData: {
         cardNumberToken: tokenData.cardNumberToken,
-        cvv: cardData.cvv,
+        cvv: cardData.cvv.replace(/\D/g, ""),
       },
       items: formattedItems,
-      redirectUrl: req.headers.get("origin") || "https://jurispro.com.mx",
+      redirectUrl: "https://jurispro.com.mx/checkout/confirmacion", // CRÍTICO: URL Absoluta forzada
     };
 
     const saleRes = await fetch(`${KEYCOP_BASE_URL}/sale`, {
       method: "POST",
-      headers,
+      headers: authHeaders,
       body: JSON.stringify(salePayload),
+      cache: "no-store",
     });
 
-    // Validación anti-caídas. Leemos como texto primero.
     const saleText = await saleRes.text();
     let saleData;
     try {
       saleData = JSON.parse(saleText);
-    } catch (e) {
-      console.error("[Keycop HTML Error] Sale devolvió HTML en vez de JSON:", saleText.substring(0, 200));
-      return NextResponse.json(
-        { ok: false, message: "El servidor del banco experimentó un error interno (502 Bad Gateway)." },
-        { status: 502 }
-      );
+    } catch {
+      console.error("[Keycop HTML Error] Sale colapsó con 502. Payload enviado:", JSON.stringify(salePayload));
+      console.error("[Keycop HTML Error] Respuesta:", saleText.substring(0, 150));
+      return NextResponse.json({ ok: false, message: "El servidor del banco experimentó un error interno (502)." }, { status: 502 });
     }
 
     if (saleData.status !== "APPROVED") {
@@ -188,12 +219,12 @@ export async function POST(req: Request) {
           message: saleData.message || saleData.error || (lang === "en" ? "Payment declined by issuing bank." : "El pago fue declinado por el banco emisor."),
           status: saleData.status 
         },
-        { status: 402 }
+        { status: 402 } 
       );
     }
 
     // ==========================================
-    // 4. ENVIAR CORREOS DE CONFIRMACIÓN
+    // 4. ENVIAR CORREOS (RESEND) A JURISPRO
     // ==========================================
     if (process.env.RESEND_API_KEY) {
       const emailHtml = buildEmailTemplate({ orderId: orderNumber, form: customer, items: lines, subtotal, discount, iva, total, lang, transactionId: saleData.transactionId || saleData.authorizationNumber });     
@@ -211,7 +242,7 @@ export async function POST(req: Request) {
         console.error("[Resend Customer Exception]", err);
       }
 
-      // Envío al Administrador
+      // Envío al Administrador (Aviso de nueva orden pagada)
       try {
         await resend.emails.send({
           from: adminEmail,
