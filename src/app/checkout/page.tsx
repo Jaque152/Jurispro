@@ -21,14 +21,44 @@ const USO_CFDI = [
 ];
 
 const PAISES = [
+  // Norteamérica (Más comunes)
   { value: "MX", label: "México" },
   { value: "US", label: "Estados Unidos" },
   { value: "CA", label: "Canadá" },
-  { value: "CO", label: "Colombia" },
+  // Resto del mundo (Orden alfabético)
+  { value: "DE", label: "Alemania" },
   { value: "AR", label: "Argentina" },
+  { value: "AU", label: "Australia" },
+  { value: "BO", label: "Bolivia" },
+  { value: "BR", label: "Brasil" },
   { value: "CL", label: "Chile" },
-  { value: "PE", label: "Perú" },
+  { value: "CN", label: "China" },
+  { value: "CO", label: "Colombia" },
+  { value: "KR", label: "Corea del Sur" },
+  { value: "CR", label: "Costa Rica" },
+  { value: "CU", label: "Cuba" },
+  { value: "EC", label: "Ecuador" },
+  { value: "SV", label: "El Salvador" },
+  { value: "AE", label: "Emiratos Árabes Unidos" },
   { value: "ES", label: "España" },
+  { value: "FR", label: "Francia" },
+  { value: "GT", label: "Guatemala" },
+  { value: "HN", label: "Honduras" },
+  { value: "IN", label: "India" },
+  { value: "IE", label: "Irlanda" },
+  { value: "IT", label: "Italia" },
+  { value: "JP", label: "Japón" },
+  { value: "NI", label: "Nicaragua" },
+  { value: "NL", label: "Países Bajos" },
+  { value: "PA", label: "Panamá" },
+  { value: "PY", label: "Paraguay" },
+  { value: "PE", label: "Perú" },
+  { value: "PT", label: "Portugal" },
+  { value: "GB", label: "Reino Unido" },
+  { value: "DO", label: "República Dominicana" },
+  { value: "CH", label: "Suiza" },
+  { value: "UY", label: "Uruguay" },
+  { value: "VE", label: "Venezuela" },
 ];
 
 const initialForm = {
